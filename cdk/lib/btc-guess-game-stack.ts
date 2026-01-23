@@ -1,9 +1,14 @@
+import { Schedule } from 'aws-cdk-lib/aws-applicationautoscaling';
 import { AllowedMethods, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { Rule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import * as cdk from 'aws-cdk-lib/core';
+import { Duration } from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 
 export class BtcGuessGameStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -33,6 +38,16 @@ export class BtcGuessGameStack extends cdk.Stack {
     });
 
     appBucket.addToResourcePolicy(cfAccesspolicy);
+
+    const fetchBtcPriceFunction = new NodejsFunction(this, 'FetchBtcPriceFunction', {
+      entry: 'lambda/fetch-btc-price.ts',
+      timeout: Duration.seconds(10),
+    });
+
+    const fetchBtcPriceRule = new Rule(this, 'FetchBtcPriceRule', {
+      schedule: Schedule.rate(Duration.minutes(1)),
+      targets: [new LambdaFunction(fetchBtcPriceFunction)],
+    });
 
     new cdk.CfnOutput(this, 'DistributionDomainName', {
       value: distribution.distributionDomainName,
