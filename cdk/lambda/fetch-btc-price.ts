@@ -1,3 +1,4 @@
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import {  type ScheduledEvent, type Context } from 'aws-lambda';
 
 // relevant subset of the Coingecko API response for bitcoin <-> USD price
@@ -20,6 +21,8 @@ function isBitcoinPriceResponse(data: unknown): data is CoingeckoPriceResponse {
 }
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd';
+const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
+const dynamoClient = new DynamoDBClient();
 
 export async function handler(event: ScheduledEvent, context: Context): Promise<void> {
   const response = await fetch(COINGECKO_API_URL)
@@ -37,4 +40,15 @@ export async function handler(event: ScheduledEvent, context: Context): Promise<
 
   const btcPriceUsd = data.bitcoin.usd;
   console.log(`Fetched BTC price: ${btcPriceUsd} USD`);
+
+  await dynamoClient.send(new PutItemCommand({
+    TableName: TABLE_NAME,
+    Item: {
+      PK: { S: '__BTC_PRICE' },
+      PriceUsd: { N: btcPriceUsd.toString() },
+      Timestamp: { S: new Date().toISOString() },
+    }
+  }));
+  
+  console.log('Stored BTC price in DynamoDB');
 }

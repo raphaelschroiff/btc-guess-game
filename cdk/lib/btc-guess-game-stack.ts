@@ -9,6 +9,7 @@ import * as cdk from 'aws-cdk-lib/core';
 import { Duration } from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 
 export class BtcGuessGameStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -39,10 +40,19 @@ export class BtcGuessGameStack extends cdk.Stack {
 
     appBucket.addToResourcePolicy(cfAccesspolicy);
 
+    const btcGuessTable = new Table(this, 'BtcGuessTable', {
+      partitionKey: { name: 'PK', type: AttributeType.STRING },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    });
+
     const fetchBtcPriceFunction = new NodejsFunction(this, 'FetchBtcPriceFunction', {
       entry: 'lambda/fetch-btc-price.ts',
       timeout: Duration.seconds(10),
+      environment: {
+        BTC_GUESS_TABLE_NAME: btcGuessTable.tableName,
+      },
     });
+    btcGuessTable.grantWriteData(fetchBtcPriceFunction);
 
     const fetchBtcPriceRule = new Rule(this, 'FetchBtcPriceRule', {
       schedule: Schedule.rate(Duration.minutes(1)),
