@@ -2,6 +2,6 @@
     "name": "btc-guess-game-bruno",
     "version": "0.1.0",
     "scripts": {
-        "test": "bru run collection.bru"
+        "test": "bru run --env-file ./environments/prod.bru"
     }
 }
