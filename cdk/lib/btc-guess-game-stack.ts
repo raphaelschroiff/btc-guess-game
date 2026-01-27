@@ -62,6 +62,7 @@ export class BtcGuessGameStack extends cdk.Stack {
       environment: {
         BTC_GUESS_TABLE_NAME: btcGuessTable.tableName,
       },
+      logGroup: this.createLogGroup('FetchBtcPriceLogGroup'),
     });
     btcGuessTable.grantWriteData(fetchBtcPriceFunction);
 
@@ -92,10 +93,7 @@ export class BtcGuessGameStack extends cdk.Stack {
       environment: {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
-      logGroup: new LogGroup(this, 'GetCurrentPriceLogGroup', {
-        retention: RetentionDays.ONE_WEEK,
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
-      }),
+      logGroup: this.createLogGroup('GetCurrentPriceLogGroup'),
     });
     table.grantReadData(getCurrentPriceFunction);
 
@@ -104,6 +102,7 @@ export class BtcGuessGameStack extends cdk.Stack {
       environment: {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
+      logGroup: this.createLogGroup('GetUserLogGroup'),
     });
     table.grantReadData(getUserFunction);
 
@@ -112,6 +111,7 @@ export class BtcGuessGameStack extends cdk.Stack {
       environment: {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
+      logGroup: this.createLogGroup('PostUserLogGroup'),
     });
     table.grantWriteData(postUserFunction);
 
@@ -122,5 +122,12 @@ export class BtcGuessGameStack extends cdk.Stack {
     user.addResource('{userName}').addMethod('GET', new LambdaIntegration(getUserFunction));
 
     return api;
+  }
+
+  createLogGroup(name: string): LogGroup {
+    return new LogGroup(this, name, {
+      retention: RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
   }
 }
