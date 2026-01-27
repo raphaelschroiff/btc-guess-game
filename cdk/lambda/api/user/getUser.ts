@@ -8,22 +8,6 @@ type User = {
   guessMadeAt: Date | null;
 }
 
-function userFromItem(item: Record<string, AttributeValue>): User {
-  const userName = item.userName.S;
-  if (!userName) {
-    throw new Error('Invalid userName in DynamoDB item');
-  }
-  const currentGuess = item.currentGuess.S;
-  const score = item.score.N ? parseInt(item.score.N) : 0;
-  const guessMadeAt = item.guessMadeAt.S ? new Date(item.guessMadeAt.S) : null;
-  return {
-    userName,
-    currentGuess: currentGuess === 'UP' || currentGuess === 'DOWN' ? currentGuess : '',
-    score,
-    guessMadeAt,
-  };
-}
-
 const dynamoClient = new DynamoDBClient();
 const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
 
@@ -66,5 +50,21 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
   return {
     statusCode: 404,
     body: JSON.stringify({ message: 'User not found' }),
+  };
+}
+
+function userFromItem(item: Record<string, AttributeValue>): User {
+  const userName = item.userName.S;
+  if (!userName) {
+    throw new Error('Invalid userName in DynamoDB item');
+  }
+  const currentGuess = item.currentGuess.S;
+  const score = item.score.N ? parseInt(item.score.N) : 0;
+  const guessMadeAt = item.guessMadeAt.S ? new Date(item.guessMadeAt.S) : null;
+  return {
+    userName,
+    currentGuess: currentGuess === 'UP' || currentGuess === 'DOWN' ? currentGuess : '',
+    score,
+    guessMadeAt,
   };
 }

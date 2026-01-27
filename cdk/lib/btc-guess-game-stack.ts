@@ -107,7 +107,7 @@ export class BtcGuessGameStack extends cdk.Stack {
     table.grantReadData(getCurrentPriceFunction);
 
     const getUserFunction = new NodejsFunction(this, 'GetUserFunction', {
-      entry: 'lambda/api/getUser.ts',
+      entry: 'lambda/api/user/getUser.ts',
       environment: {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
@@ -117,7 +117,7 @@ export class BtcGuessGameStack extends cdk.Stack {
     table.grantReadData(getUserFunction);
 
     const postUserFunction = new NodejsFunction(this, 'PostUserFunction', {
-      entry: 'lambda/api/postUser.ts',
+      entry: 'lambda/api/user/postUser.ts',
       environment: {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
