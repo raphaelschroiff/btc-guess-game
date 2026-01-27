@@ -1,5 +1,5 @@
 import { Schedule } from 'aws-cdk-lib/aws-applicationautoscaling';
-import { AllowedMethods, Distribution } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CachePolicy, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { RestApiOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
@@ -41,8 +41,11 @@ export class BtcGuessGameStack extends cdk.Stack {
       defaultRootObject: 'index.html',
       additionalBehaviors: {
         'api/*': {
-          origin: new RestApiOrigin(restApi),
+          origin: new RestApiOrigin(restApi, {
+            originPath: '/',
+          }),
           allowedMethods: AllowedMethods.ALLOW_ALL,
+          cachePolicy: CachePolicy.CACHING_DISABLED,
         },
       },
     });
