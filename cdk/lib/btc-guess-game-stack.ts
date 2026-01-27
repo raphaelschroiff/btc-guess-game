@@ -11,6 +11,7 @@ import { Construct } from 'constructs';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 export class BtcGuessGameStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -86,6 +87,18 @@ export class BtcGuessGameStack extends cdk.Stack {
       },
     });
 
+    const getCurrentPriceFunction = new NodejsFunction(this, 'GetCurrentPriceFunction', {
+      entry: 'lambda/api/getCurrentPrice.ts',
+      environment: {
+        BTC_GUESS_TABLE_NAME: table.tableName,
+      },
+      logGroup: new LogGroup(this, 'GetCurrentPriceLogGroup', {
+        retention: RetentionDays.ONE_WEEK,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      }),
+    });
+    table.grantReadData(getCurrentPriceFunction);
+
     const getUserFunction = new NodejsFunction(this, 'GetUserFunction', {
       entry: 'lambda/api/getUser.ts',
       environment: {
@@ -101,6 +114,8 @@ export class BtcGuessGameStack extends cdk.Stack {
       },
     });
     table.grantWriteData(postUserFunction);
+
+    api.root.addResource('current-price').addMethod('GET', new LambdaIntegration(getCurrentPriceFunction));
 
     const user = api.root.addResource('user');
     user.addMethod('POST', new LambdaIntegration(postUserFunction));
