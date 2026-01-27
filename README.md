@@ -20,11 +20,8 @@ After the deployment completes successfully, copy the value of the `AppBucketNam
 
 Next, go to the `spa` directory and build the frontend by running `npm run build`. To deploy the SPA, use the command `npm run deploy -- s3://<AppBucketName> --profile <aws profile>`, replacing `<AppBucketName>` and `<aws profile>` with your actual values.
 
-## Useful commands
+## API Tests 
+For the API Tests [Bruno](https://www.usebruno.com/) is used. Intsall the CLI version of Bruno via `npm install -g @usebruno/cli``
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+To execute the tests go to the `bruno` directory and execute `npm test`
+

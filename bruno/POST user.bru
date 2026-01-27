@@ -1,0 +1,21 @@
+meta {
+  name: POST user
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://d2krk7nz2hm6sl.cloudfront.net/api/user
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "userName": "raphael"
+  }
+}
