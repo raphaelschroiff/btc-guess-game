@@ -3,7 +3,7 @@ import { AllowedMethods, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { RestApiOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { BundlingOptions, NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import * as cdk from 'aws-cdk-lib/core';
 import { Duration } from 'aws-cdk-lib/core';
@@ -14,6 +14,10 @@ import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 export class BtcGuessGameStack extends cdk.Stack {
+  #lambdaBundlingOptions: BundlingOptions = {
+    externalModules: ['@aws-sdk/*'],
+  }
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     
@@ -63,6 +67,7 @@ export class BtcGuessGameStack extends cdk.Stack {
         BTC_GUESS_TABLE_NAME: btcGuessTable.tableName,
       },
       logGroup: this.createLogGroup('FetchBtcPriceLogGroup'),
+      bundling: this.#lambdaBundlingOptions,
     });
     btcGuessTable.grantWriteData(fetchBtcPriceFunction);
 
@@ -94,6 +99,7 @@ export class BtcGuessGameStack extends cdk.Stack {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
       logGroup: this.createLogGroup('GetCurrentPriceLogGroup'),
+      bundling: this.#lambdaBundlingOptions,
     });
     table.grantReadData(getCurrentPriceFunction);
 
@@ -103,6 +109,7 @@ export class BtcGuessGameStack extends cdk.Stack {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
       logGroup: this.createLogGroup('GetUserLogGroup'),
+      bundling: this.#lambdaBundlingOptions,
     });
     table.grantReadData(getUserFunction);
 
@@ -112,6 +119,7 @@ export class BtcGuessGameStack extends cdk.Stack {
         BTC_GUESS_TABLE_NAME: table.tableName,
       },
       logGroup: this.createLogGroup('PostUserLogGroup'),
+      bundling: this.#lambdaBundlingOptions,
     });
     table.grantWriteData(postUserFunction);
 
