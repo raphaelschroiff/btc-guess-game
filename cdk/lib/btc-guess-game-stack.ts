@@ -126,11 +126,23 @@ export class BtcGuessGameStack extends cdk.Stack {
     });
     table.grantWriteData(postUserFunction);
 
+    const postGuessFunction = new NodejsFunction(this, 'PostGuessFunction', {
+      entry: 'lambda/api/user/postGuess.ts',
+      environment: {
+        BTC_GUESS_TABLE_NAME: table.tableName,
+      },
+      logGroup: this.createLogGroup('PostGuessLogGroup'),
+      bundling: this.#lambdaBundlingOptions,
+    });
+    table.grantWriteData(postGuessFunction);
+
     api.root.addResource('current-price').addMethod('GET', new LambdaIntegration(getCurrentPriceFunction));
 
     const user = api.root.addResource('user');
     user.addMethod('POST', new LambdaIntegration(postUserFunction));
-    user.addResource('{userName}').addMethod('GET', new LambdaIntegration(getUserFunction));
+    const userName = user.addResource('{userName}');
+    userName.addMethod('GET', new LambdaIntegration(getUserFunction));
+    userName.addResource('guess').addMethod('POST', new LambdaIntegration(postGuessFunction));
 
     return api;
   }
