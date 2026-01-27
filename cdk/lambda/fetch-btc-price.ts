@@ -1,5 +1,6 @@
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import {  type ScheduledEvent, type Context } from 'aws-lambda';
+import { BTC_PRICE_PK } from './common/constants';
 
 // relevant subset of the Coingecko API response for bitcoin <-> USD price
 type CoingeckoPriceResponse = {
@@ -39,16 +40,24 @@ export async function handler(event: ScheduledEvent, context: Context): Promise<
   }
 
   const btcPriceUsd = data.bitcoin.usd;
-  console.log(`Fetched BTC price: ${btcPriceUsd} USD`);
+  try {
+    await storePriceInDynamoDB(btcPriceUsd);
+  }
+  catch (error) {
+    console.error('Failed to store BTC price in DynamoDB', error);
+  }
+}
+
+async function storePriceInDynamoDB(price: number): Promise<void> { 
+  const timestamp = new Date().toISOString();
 
   await dynamoClient.send(new PutItemCommand({
     TableName: TABLE_NAME,
     Item: {
-      PK: { S: '__BTC_PRICE' },
-      PriceUsd: { N: btcPriceUsd.toString() },
-      Timestamp: { S: new Date().toISOString() },
-    }
+      PK: { S: BTC_PRICE_PK },
+      SK: { S: timestamp },
+      price: { N: price.toString() },
+    },
   }));
-  
-  console.log('Stored BTC price in DynamoDB');
+  console.log(`Stored BTC price ${price} USD at ${timestamp}`);
 }

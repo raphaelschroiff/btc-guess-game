@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 
 type PostUserBody = {
@@ -38,6 +38,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
       TableName: TABLE_NAME,
       Item: {
         PK: { S: `USER#${userName.userName}` },
+        SK: { S: `USER#${userName.userName}` },
         userName: { S: userName.userName },
         score: { N: '0' },
         currentGuess: { S: '' },

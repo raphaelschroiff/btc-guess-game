@@ -18,6 +18,7 @@ export class BtcGuessGameStack extends cdk.Stack {
     
     const btcGuessTable = new Table(this, 'BtcGuessTable', {
       partitionKey: { name: 'PK', type: AttributeType.STRING },
+      sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
 

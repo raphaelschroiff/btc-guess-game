@@ -1,5 +1,5 @@
-import { AttributeValue, DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { type AttributeValue, DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
 
 type User = {
   userName: string;
@@ -45,6 +45,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
       TableName: TABLE_NAME,
       Key: {
         PK: { S: `USER#${userName}` },
+        SK: { S: `USER#${userName}` },
       },
     }));
 

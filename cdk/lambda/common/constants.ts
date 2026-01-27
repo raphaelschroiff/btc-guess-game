@@ -1,0 +1,1 @@
+export const BTC_PRICE_PK = 'BTC_PRICE#USD'
