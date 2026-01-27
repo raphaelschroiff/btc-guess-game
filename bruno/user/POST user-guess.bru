@@ -16,6 +16,11 @@ body:json {
   }
 }
 
+assert {
+  res.status: eq 200
+  : eq 
+}
+
 settings {
   encodeUrl: true
   timeout: 0

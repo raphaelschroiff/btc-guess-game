@@ -1,5 +1,6 @@
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { getCurrentBtcPrice } from "../../common/dbMethods";
 
 type PostGuessBody = {
   guess: 'UP' | 'DOWN';
@@ -41,13 +42,18 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
   console.log(`Storing guess for user ${userName}: ${body.guess}`);
 
   try {
-    await dynamoClient.send(new PutItemCommand({
+    const currentPrice = await getCurrentBtcPrice(dynamoClient, TABLE_NAME);
+    await dynamoClient.send(new UpdateItemCommand({
       TableName: TABLE_NAME,
-      Item: {
+      Key: {
         PK: { S: `USER#${userName}` },
         SK: { S: `USER#${userName}` },
-        currentGuess: { S: body.guess },
-        guessMadeAt: { S: new Date().toISOString() },
+      },
+      UpdateExpression: 'SET currentGuess = :guess, guessMadeAt = :guessMadeAt, currentPrice = :currentPrice',
+      ExpressionAttributeValues: {
+        ':guess': { S: body.guess },
+        ':guessMadeAt': { S: new Date().toISOString() },
+        ':currentPrice': { N: currentPrice.toString() },
       },
     }));
   } catch (error) {

@@ -1,33 +1,30 @@
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
-import { BTC_PRICE_PK } from "../common/constants";
+import { getCurrentBtcPrice } from "../common/dbMethods";
 
 const dynamoClient = new DynamoDBClient();
 const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME;
 
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-
-    const result = await dynamoClient.send(new QueryCommand({
-        TableName: TABLE_NAME,
-        KeyConditionExpression: 'PK = :pk',
-        ExpressionAttributeValues: {
-            ':pk': { S: BTC_PRICE_PK },
-        },
-        ScanIndexForward: false, // descending order
-        Limit: 1,
-        ProjectionExpression: 'price',
-    }));
-
-    const price = result.Items?.[0]?.price.N;
-    if (!price) {
-        return {
-            statusCode: 404,
-            body: JSON.stringify({ message: 'no price not found' }),
-        };
+  if (!TABLE_NAME) {
+    console.error('TABLE_NAME is not defined in environment variables');
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ message: 'Internal server error' }),
+      };
     }
 
+  try {
+    const price = await getCurrentBtcPrice(dynamoClient, TABLE_NAME);
     return {
         statusCode: 200,
-        body: JSON.stringify({ price: parseFloat(price) }),
+        body: JSON.stringify({ price }),
     };
+  } catch (error) {
+    console.error('Error fetching current BTC price:', error);
+    return {
+    statusCode: 500,
+    body: JSON.stringify({ message: 'Internal server error' }),
+    };
+  }
 }

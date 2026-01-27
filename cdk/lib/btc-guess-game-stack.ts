@@ -134,7 +134,7 @@ export class BtcGuessGameStack extends cdk.Stack {
       logGroup: this.createLogGroup('PostGuessLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
-    table.grantWriteData(postGuessFunction);
+    table.grantReadWriteData(postGuessFunction);
 
     api.root.addResource('current-price').addMethod('GET', new LambdaIntegration(getCurrentPriceFunction));
 
