@@ -7,13 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "aws s3 sync dist/"
+    "deploy": "aws s3 sync dist/",
+    "lint": "eslint"
   },
   "dependencies": {
-    "preact": "^10.27.2"
+    "eslint": "^9.39.2",
+    "eslint-config-preact": "^2.0.0",
+    "preact": "^10.27.2",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
+    "typescript-eslint": "^8.54.0",
     "vite": "^7.2.4"
   }
 }
