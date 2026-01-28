@@ -10,7 +10,7 @@ import { Duration } from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
-import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { CorsOptions, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 export class BtcGuessGameStack extends cdk.Stack {
@@ -18,9 +18,15 @@ export class BtcGuessGameStack extends cdk.Stack {
     externalModules: ['@aws-sdk/*'],
   }
 
+  #corsOptions: CorsOptions = {
+    allowOrigins: ['http://localhost:5173'],
+    allowMethods: ['GET', 'POST', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
+  }
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    
+
     const btcGuessTable = new Table(this, 'BtcGuessTable', {
       partitionKey: { name: 'PK', type: AttributeType.STRING },
       sortKey: { name: 'SK', type: AttributeType.STRING },
@@ -97,11 +103,14 @@ export class BtcGuessGameStack extends cdk.Stack {
       },
     });
 
+    const environmentVariables = {
+      BTC_GUESS_TABLE_NAME: table.tableName,
+      CORS_ALLOW_ORIGIN: this.#corsOptions.allowOrigins.join(','),
+    };
+
     const getCurrentPriceFunction = new NodejsFunction(this, 'GetCurrentPriceFunction', {
       entry: 'lambda/api/getCurrentPrice.ts',
-      environment: {
-        BTC_GUESS_TABLE_NAME: table.tableName,
-      },
+      environment: environmentVariables,
       logGroup: this.createLogGroup('GetCurrentPriceLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
@@ -109,9 +118,7 @@ export class BtcGuessGameStack extends cdk.Stack {
 
     const getUserFunction = new NodejsFunction(this, 'GetUserFunction', {
       entry: 'lambda/api/user/getUser.ts',
-      environment: {
-        BTC_GUESS_TABLE_NAME: table.tableName,
-      },
+      environment: environmentVariables,
       logGroup: this.createLogGroup('GetUserLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
@@ -119,9 +126,7 @@ export class BtcGuessGameStack extends cdk.Stack {
 
     const postUserFunction = new NodejsFunction(this, 'PostUserFunction', {
       entry: 'lambda/api/user/postUser.ts',
-      environment: {
-        BTC_GUESS_TABLE_NAME: table.tableName,
-      },
+      environment: environmentVariables,
       logGroup: this.createLogGroup('PostUserLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
@@ -129,9 +134,7 @@ export class BtcGuessGameStack extends cdk.Stack {
 
     const postGuessFunction = new NodejsFunction(this, 'PostGuessFunction', {
       entry: 'lambda/api/user/postGuess.ts',
-      environment: {
-        BTC_GUESS_TABLE_NAME: table.tableName,
-      },
+      environment: environmentVariables,
       logGroup: this.createLogGroup('PostGuessLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
@@ -139,22 +142,32 @@ export class BtcGuessGameStack extends cdk.Stack {
 
     const getCheckResolvedFunction = new NodejsFunction(this, 'GetCheckResolvedFunction', {
       entry: 'lambda/api/user/getCheckResolved.ts',
-      environment: {
-        BTC_GUESS_TABLE_NAME: table.tableName,
-      },
+      environment: environmentVariables,
       logGroup: this.createLogGroup('GetCheckResolvedLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
     table.grantReadWriteData(getCheckResolvedFunction);
 
-    api.root.addResource('current-price').addMethod('GET', new LambdaIntegration(getCurrentPriceFunction));
+    const currentPrice = api.root.addResource('current-price')
+    currentPrice.addMethod('GET', new LambdaIntegration(getCurrentPriceFunction))
+    currentPrice.addCorsPreflight(this.#corsOptions);
 
     const user = api.root.addResource('user');
     user.addMethod('POST', new LambdaIntegration(postUserFunction));
+    user.addCorsPreflight(this.#corsOptions);
+
     const userName = user.addResource('{userName}');
     userName.addMethod('GET', new LambdaIntegration(getUserFunction));
-    userName.addResource('guess').addMethod('POST', new LambdaIntegration(postGuessFunction));
-    userName.addResource('check-resolved').addMethod('GET', new LambdaIntegration(getCheckResolvedFunction));
+    userName.addCorsPreflight(this.#corsOptions);
+
+    const guess = userName.addResource('guess')
+    guess.addMethod('POST', new LambdaIntegration(postGuessFunction));
+    guess.addCorsPreflight(this.#corsOptions);
+
+    const checkResolved = userName.addResource('check-resolved');
+    checkResolved.addMethod('GET', new LambdaIntegration(getCheckResolvedFunction));
+    checkResolved.addCorsPreflight(this.#corsOptions);
+
     return api;
   }
 

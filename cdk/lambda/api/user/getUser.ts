@@ -1,7 +1,7 @@
-import { type AttributeValue, DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
-import { get } from "http";
 import { getUser } from "../../common/user";
+import { badRequest, internalServerError, notFound, ok } from "../../common/responses";
 
 const dynamoClient = new DynamoDBClient();
 const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
@@ -11,10 +11,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const userName = event.pathParameters?.userName;
   if (!userName) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'UserName parameter is required' }),
-    };
+    return badRequest({ message: 'UserName parameter is required' });
   }
 
   console.log(`Retrieving user name: ${userName}`);
@@ -22,23 +19,14 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
   try {
     const user = await getUser(dynamoClient, TABLE_NAME, userName);
     if (user) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify(user),
-      };
+      return ok(user);
     }
   } catch (error) {
     console.error('Error retrieving user name from DynamoDB:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' }),
-    };
+    return internalServerError();
   }
 
-  return {
-    statusCode: 404,
-    body: JSON.stringify({ message: 'User not found' }),
-  };
+  return notFound({ message: 'User not found' });
 }
 
 

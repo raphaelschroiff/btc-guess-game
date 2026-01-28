@@ -1,6 +1,7 @@
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { getCurrentBtcPrice } from "../../common/price";
+import { badRequest, internalServerError, ok } from "../../common/responses";
 
 type PostGuessBody = {
   guess: 'UP' | 'DOWN';
@@ -19,24 +20,15 @@ const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const userName = event.pathParameters?.userName;
   if (!userName) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'UserName parameter is required' }),
-    };
+    return badRequest({ message: 'UserName parameter is required' });
   }
 
   const body = event.body && JSON.parse(event.body);
   if (!body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Request body is required' }),
-    };
+    return badRequest({ message: 'Request body is required' });
   }
   if (!isValidPostGuessBody(body)) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid body' }),
-    };
+    return badRequest({ message: 'Invalid body' });
   }
 
   console.log(`Storing guess for user ${userName}: ${body.guess}`);
@@ -58,14 +50,8 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }));
   } catch (error) {
     console.error('Error storing guess in DynamoDB:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' }),
-    };
+    return internalServerError();
   }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: 'Guess stored successfully' }),
-  };
+  return ok({ message: 'Guess stored successfully' });
 }

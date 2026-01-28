@@ -1,5 +1,6 @@
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { badRequest, conflict, created, internalServerError } from "../../common/responses";
 
 type PostUserBody = {
   userName: string;
@@ -18,17 +19,11 @@ const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const userName = event.body && JSON.parse(event.body);
   if (!userName) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'UserName is required' }),
-    };
+    return badRequest({ message: 'UserName is required' });
   }
 
   if (!isValidPostUserBody(userName)) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid body' }),
-    };
+    return badRequest({ message: 'Invalid body' });
   }
 
   console.log(`Storing user name: ${userName.userName}`);
@@ -48,21 +43,12 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }));
   } catch (error) {
     if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'ConditionalCheckFailedException') {
-      return {
-        statusCode: 409,
-        body: JSON.stringify({ message: 'User already exists' }),
-      };
+      return conflict({ message: 'User already exists' });
     }
 
     console.error('Error storing user name in DynamoDB:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' }),
-    };
+    return internalServerError();
   }
 
-  return {
-    statusCode: 201,
-    body: JSON.stringify({ message: 'User created successfully' }),
-  };
+  return created({ message: 'User created successfully' });
 }
