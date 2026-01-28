@@ -136,6 +136,16 @@ export class BtcGuessGameStack extends cdk.Stack {
     });
     table.grantReadWriteData(postGuessFunction);
 
+    const getCheckResolvedFunction = new NodejsFunction(this, 'GetCheckResolvedFunction', {
+      entry: 'lambda/api/user/getCheckResolved.ts',
+      environment: {
+        BTC_GUESS_TABLE_NAME: table.tableName,
+      },
+      logGroup: this.createLogGroup('GetCheckResolvedLogGroup'),
+      bundling: this.#lambdaBundlingOptions,
+    });
+    table.grantReadWriteData(getCheckResolvedFunction);
+
     api.root.addResource('current-price').addMethod('GET', new LambdaIntegration(getCurrentPriceFunction));
 
     const user = api.root.addResource('user');
@@ -143,7 +153,7 @@ export class BtcGuessGameStack extends cdk.Stack {
     const userName = user.addResource('{userName}');
     userName.addMethod('GET', new LambdaIntegration(getUserFunction));
     userName.addResource('guess').addMethod('POST', new LambdaIntegration(postGuessFunction));
-
+    userName.addResource('check-resolved').addMethod('GET', new LambdaIntegration(getCheckResolvedFunction));
     return api;
   }
 

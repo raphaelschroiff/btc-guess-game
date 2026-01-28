@@ -1,5 +1,5 @@
 meta {
-  name: POST user/guess
+  name: POST guess
   type: http
   seq: 3
 }
@@ -18,7 +18,7 @@ body:json {
 
 assert {
   res.status: eq 200
-  : eq 
+  : eq
 }
 
 settings {

@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
-import { getCurrentBtcPrice } from "../common/dbMethods";
+import { getCurrentBtcPrice } from "../common/price";
 
 const dynamoClient = new DynamoDBClient();
 const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME;

@@ -1,6 +1,6 @@
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { getCurrentBtcPrice } from "../../common/dbMethods";
+import { getCurrentBtcPrice } from "../../common/price";
 
 type PostGuessBody = {
   guess: 'UP' | 'DOWN';

@@ -1,12 +1,7 @@
 import { type AttributeValue, DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
-
-type User = {
-  userName: string;
-  currentGuess: 'UP' | 'DOWN' | '';
-  score: number;
-  guessMadeAt: Date | null;
-}
+import { get } from "http";
+import { getUser } from "../../common/user";
 
 const dynamoClient = new DynamoDBClient();
 const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
@@ -25,18 +20,11 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
   console.log(`Retrieving user name: ${userName}`);
 
   try {
-    const result = await dynamoClient.send(new GetItemCommand({
-      TableName: TABLE_NAME,
-      Key: {
-        PK: { S: `USER#${userName}` },
-        SK: { S: `USER#${userName}` },
-      },
-    }));
-
-    if (result?.Item) {
+    const user = await getUser(dynamoClient, TABLE_NAME, userName);
+    if (user) {
       return {
         statusCode: 200,
-        body: JSON.stringify(userFromItem(result.Item)),
+        body: JSON.stringify(user),
       };
     }
   } catch (error) {
@@ -53,18 +41,4 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
   };
 }
 
-function userFromItem(item: Record<string, AttributeValue>): User {
-  const userName = item.userName.S;
-  if (!userName) {
-    throw new Error('Invalid userName in DynamoDB item');
-  }
-  const currentGuess = item.currentGuess.S;
-  const score = item.score.N ? parseInt(item.score.N) : 0;
-  const guessMadeAt = item.guessMadeAt.S ? new Date(item.guessMadeAt.S) : null;
-  return {
-    userName,
-    currentGuess: currentGuess === 'UP' || currentGuess === 'DOWN' ? currentGuess : '',
-    score,
-    guessMadeAt,
-  };
-}
+
