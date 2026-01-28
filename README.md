@@ -20,8 +20,30 @@ After the deployment completes successfully, copy the value of the `AppBucketNam
 
 Next, go to the `spa` directory and build the frontend by running `npm run build`. To deploy the SPA, use the command `npm run deploy -- s3://<AppBucketName> --profile <aws profile>`, replacing `<AppBucketName>` and `<aws profile>` with your actual values.
 
-## API Tests 
+## API Tests
 For the API Tests [Bruno](https://www.usebruno.com/) is used. Intsall the CLI version of Bruno via `npm install -g @usebruno/cli``
 
 To execute the tests go to the `bruno` directory and execute `npm test`
 
+## SPA (Frontend)
+The `spa` directory contains the preact frontend of the app.
+
+To run the frontend locally:
+
+1. Create a `.env` file in the `spa` directory and set the `VITE_BASE_URL` variable to your deployed CloudFront URL:
+  ```
+  VITE_BASE_URL=https://<your-cloudfront-domain>
+  ```
+  Replace `<your-cloudfront-domain>` with the actual CloudFront distribution URL from your deployment.
+
+2. Install dependencies (if not already done):
+  ```
+  npm install
+  ```
+
+3. Start the development server:
+  ```
+  npm run dev
+  ```
+
+The SPA will be available at `http://localhost:5173` (or the port shown in your terminal).
