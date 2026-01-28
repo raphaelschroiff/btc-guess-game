@@ -57,6 +57,7 @@ async function storePriceInDynamoDB(price: number): Promise<void> {
       PK: { S: BTC_PRICE_PK },
       SK: { S: timestamp },
       price: { N: price.toString() },
+      expiration: { N: (Math.floor(Date.now() / 1000) + 60 * 60).toString() }, // expire in 1h
     },
   }));
   console.log(`Stored BTC price ${price} USD at ${timestamp}`);

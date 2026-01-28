@@ -25,6 +25,7 @@ export class BtcGuessGameStack extends cdk.Stack {
       partitionKey: { name: 'PK', type: AttributeType.STRING },
       sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
+      timeToLiveAttribute: 'expiration',
     });
 
     const appBucket = new Bucket(this, 'BtcGuessGameAppBucket', {
