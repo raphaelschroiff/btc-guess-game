@@ -5,6 +5,7 @@ import { CreateUser } from './components/create-user/create-user';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { UserScore } from './components/user-score/user-score';
 import { userQuery } from './data/user';
+import { BtcPrice } from './components/btc-price';
 
 export function App() {
 
@@ -14,6 +15,8 @@ export function App() {
     queryKey: ['user', username],
     queryFn: async () => userQuery(username),
   });
+
+  const noGuessMade = user && !user.currentGuess;
 
   return (
     <>
@@ -26,7 +29,16 @@ export function App() {
 
       <div class="card">
         {username ?
-          <span>Welcome back, {username}!</span> :
+        <>
+          <span>Welcome back, {username}!</span>
+          { noGuessMade ?
+          <>
+            <BtcPrice />
+          </>:
+          <div>Your current guess is {user?.currentGuess}</div>
+        }
+        </>
+          :
           <CreateUser onUserCreated={(newUsername) => setUsername(newUsername)} />
         }
       </div>
