@@ -1,9 +1,11 @@
 import { render } from 'preact'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
 import './index.css'
 import { App } from './app.js'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
+
 render(
   <QueryClientProvider client={queryClient}>
     <App />
