@@ -1,13 +1,13 @@
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { getUser, updateUserScore } from "../../common/user";
-import { getBtcPriceAfter, getCurrentBtcPrice } from "../../common/price";
+import { getBtcPriceAfter } from "../../common/price";
 import { badRequest, internalServerError, notFound, ok } from "../../common/responses";
 
 const dynamoClient = new DynamoDBClient();
 const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
 
-type CheckResolvedResponse = {
+type ResolveResponse = {
   guessCorrect: boolean;
   guess: 'UP' | 'DOWN';
   priceAtGuess: number;
@@ -30,7 +30,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return badRequest({ reason: 'NO_GUESS_MADE' });
   }
 
-  if (new Date() < new Date(guessMadeAt.getTime() +  60 * 1000)) {
+  if (new Date() < new Date(guessMadeAt.getTime() + 60 * 1000)) {
     return badRequest({ reason: 'RESOLUTION_TIME_NOT_PASSED' });
   }
 
@@ -54,7 +54,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.error('Error updating user score in DynamoDB:', error);
     return internalServerError();
   }
-  const responseBody: CheckResolvedResponse = {
+  const responseBody: ResolveResponse = {
     guessCorrect,
     guess: user.currentGuess,
     priceAtGuess: user.currentPrice,
@@ -67,5 +67,5 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
 function guessIsCorrect(guess: 'UP' | 'DOWN', priceAtGuess: number, priceAfter: number): boolean {
   return (guess === 'UP' && priceAfter > priceAtGuess) ||
-         (guess === 'DOWN' && priceAfter < priceAtGuess);
+    (guess === 'DOWN' && priceAfter < priceAtGuess);
 }

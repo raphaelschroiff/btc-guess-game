@@ -60,7 +60,7 @@ export class BtcGuessGameStack extends cdk.Stack {
     const cfAccesspolicy = new PolicyStatement({
       actions: ['s3:GetObject'],
       resources: [`${appBucket.bucketArn}/*`],
-      principals: [ ServicePrincipal.fromStaticServicePrincipleName('cloudfront.amazonaws.com')],
+      principals: [ServicePrincipal.fromStaticServicePrincipleName('cloudfront.amazonaws.com')],
       conditions: {
         'StringEquals': {
           'AWS:SourceArn': distribution.distributionArn
@@ -140,13 +140,13 @@ export class BtcGuessGameStack extends cdk.Stack {
     });
     table.grantReadWriteData(postGuessFunction);
 
-    const getCheckResolvedFunction = new NodejsFunction(this, 'GetCheckResolvedFunction', {
-      entry: 'lambda/api/user/getCheckResolved.ts',
+    const postResolveFunction = new NodejsFunction(this, 'PostResolveFunction', {
+      entry: 'lambda/api/user/postResolve.ts',
       environment: environmentVariables,
-      logGroup: this.createLogGroup('GetCheckResolvedLogGroup'),
+      logGroup: this.createLogGroup('PostResolveLogGroup'),
       bundling: this.#lambdaBundlingOptions,
     });
-    table.grantReadWriteData(getCheckResolvedFunction);
+    table.grantReadWriteData(postResolveFunction);
 
     const currentPrice = api.root.addResource('current-price')
     currentPrice.addMethod('GET', new LambdaIntegration(getCurrentPriceFunction))
@@ -164,9 +164,9 @@ export class BtcGuessGameStack extends cdk.Stack {
     guess.addMethod('POST', new LambdaIntegration(postGuessFunction));
     guess.addCorsPreflight(this.#corsOptions);
 
-    const checkResolved = userName.addResource('check-resolved');
-    checkResolved.addMethod('GET', new LambdaIntegration(getCheckResolvedFunction));
-    checkResolved.addCorsPreflight(this.#corsOptions);
+    const resolve = userName.addResource('resolve');
+    resolve.addMethod('POST', new LambdaIntegration(postResolveFunction));
+    resolve.addCorsPreflight(this.#corsOptions);
 
     return api;
   }

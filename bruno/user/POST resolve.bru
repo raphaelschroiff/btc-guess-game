@@ -1,15 +1,16 @@
 meta {
-  name: GET check-resolved
+  name: POST resolve
   type: http
   seq: 4
 }
 
 post {
-  url: {{baseUrl}}/api/user/raphael/check-resolved
+  url: {{baseUrl}}/api/user/raphael/resolve
   body: none
   auth: inherit
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
