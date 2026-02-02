@@ -1,8 +1,12 @@
 import { render } from 'preact'
 import './index.css'
 import { App } from './app.js'
-import { baseUrl } from './constants';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-console.log('Base URL:', baseUrl);
-
-render(<App />, document.getElementById('app'))
+const queryClient = new QueryClient();
+render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>,
+  document.getElementById('app')
+)

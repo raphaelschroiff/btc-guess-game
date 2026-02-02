@@ -1,13 +1,10 @@
 import './app.css'
+import { CreateUser } from './components/create-user/create-user';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { useState } from 'preact/hooks';
 
 export function App() {
 
   const [username, setUsername] = useLocalStorage('username', '');
-
-  const [newUsername, setNewUsername] = useState('');
-
 
   return (
     <>
@@ -15,19 +12,11 @@ export function App() {
       <div class="card">
         {username ?
           <span>Welcome back, {username}!</span> :
-          <CreateUser />
+          <CreateUser onUserCreated={(newUsername) => setUsername(newUsername)} />
         }
       </div>
     </>
   )
 
-  function CreateUser() {
-    return <div>
-      <h2>Please set your username.</h2>
-      <input type="text" value={newUsername} onInput={(e) => setNewUsername((e.target as HTMLInputElement).value)} placeholder="Enter your username" />
-      <button onClick={() => setUsername(newUsername)}>
-        Set Username
-      </button>
-    </div>;
-  }
+
 }
