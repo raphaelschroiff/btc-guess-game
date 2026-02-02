@@ -1,13 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'preact/hooks';
 
 import './app.css'
 import { CreateUser } from './components/create-user/create-user';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { UserScore } from './components/user-score/user-score';
 import { userQuery } from './data/user';
-import { BtcPrice } from './components/btc-price';
 import { GuessForm } from './components/guess-form';
-import { useMemo } from 'preact/hooks';
+import { CurrentGuess } from './components/current-guess/current-guess';
 
 export function App() {
 
@@ -21,30 +21,36 @@ export function App() {
     queryFn: async () => userQuery(username),
   });
 
-  const noGuessMade = user && !user.currentGuess;
+  const hasMadeGuess = user && !!user.currentGuess;
 
   return (
     <>
       <h1>BTC Guess</h1>
 
-      {user ? <UserScore score={user.score} /> : null}
 
       {error ? <div class="error">An error occurred: {error.message}</div> : null}
-      {isLoading ? <div>Loading...</div> : null}
 
       <div class="card">
         {username ?
           <>
             <span>Welcome back, {username}!</span>
-            {noGuessMade ?
+
+            {error ? <div class="error">An error occurred: {error.message}</div> : null}
+            {isLoading ? <div>Loading...</div> : null}
+
+            {user ?
               <>
-                <BtcPrice />
-                <GuessForm user={user} onGuessMade={() => {
-                  queryClient.invalidateQueries({ queryKey });
-                }} />
-              </> :
-              <div>Your current guess is {user?.currentGuess}</div>
-            }
+                <UserScore score={user.score} />
+                {hasMadeGuess ?
+                  <CurrentGuess user={user} /> :
+                  <>
+                    <GuessForm user={user} onGuessMade={() => {
+                      queryClient.invalidateQueries({ queryKey });
+                    }} />
+                  </>
+                }
+              </>
+              : null}
           </>
           :
           <CreateUser onUserCreated={(newUsername) => setUsername(newUsername)} />

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { makeGuessMutation, User } from "../data/user";
+import { BtcPrice } from "./btc-price";
 
 export function GuessForm({ user, onGuessMade }: { user: User, onGuessMade: () => void }) {
 
@@ -16,6 +17,7 @@ export function GuessForm({ user, onGuessMade }: { user: User, onGuessMade: () =
 
   return (
     <>
+      <BtcPrice />
       <p>Make your guess - will the price go up or down?</p>
 
       <button onClick={() => makeGuess.mutate("UP")}>⬆️ Up!</button>
