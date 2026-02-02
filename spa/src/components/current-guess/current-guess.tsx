@@ -1,11 +1,13 @@
 import { useEffect, useState } from "preact/hooks";
 import { User } from "../../data/user";
 import { useMutation } from "@tanstack/react-query";
-import { resolveGuessMutation } from "../../data/guess";
+import { ResolvedGuess, resolveGuessMutation } from "../../data/guess";
 
 export function CurrentGuess({ user }: { user: User }) {
 
   const [secondsToResolve, setSecondsToResolve] = useState<number | null>(null);
+  const [resolvedGuess, setResolvedGuess] = useState<ResolvedGuess | null>(null);
+
 
   useEffect(() => {
     if (!user || !user.guessMadeAt) {
@@ -21,22 +23,31 @@ export function CurrentGuess({ user }: { user: User }) {
     return () => clearInterval(interval);
   }, [user, user?.guessMadeAt]);
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, error } = useMutation({
     mutationFn: () => resolveGuessMutation(user.userName),
     onSuccess: (data) => {
-      alert(`Your guess was ${data.guessCorrect ? 'correct' : 'incorrect'}! New score: ${data.newScore}`);
-    },
-    onError: (error) => {
-      alert(`Failed to resolve guess: ${error.message}`);
+      setResolvedGuess(data);
     }
   });
   return (
     <>
-      <div>Your current guess is {user.currentGuess}</div>
-      <div>Guess can be resolved in {secondsToResolve !== null ? `${secondsToResolve} seconds` : 'N/A'}</div>
-      <button onClick={() => mutate()} disabled={isPending || (secondsToResolve !== null && secondsToResolve > 0)}>
-        Resolve Guess
-      </button>
+      {error ? <div class="error">An error occurred: {error.message}</div> : null}
+      {resolvedGuess ?
+        <>
+          <div>Your guess was {resolvedGuess.guessCorrect ? 'correct' : 'incorrect'}!</div>
+          <div>Your guess: {resolvedGuess.guess}</div>
+          <div>Price at guess: {resolvedGuess.priceAtGuess}</div>
+          <div>Price after: {resolvedGuess.priceAfter}</div>
+        </>
+        :
+        <>
+          <div>Your current guess is {user.currentGuess}</div>
+          <div>Guess can be resolved in {secondsToResolve !== null ? `${secondsToResolve} seconds` : 'N/A'}</div>
+          <button onClick={() => mutate()} disabled={isPending || (secondsToResolve !== null && secondsToResolve > 0)}>
+            Resolve Guess
+          </button>
+        </>
+      }
     </>
   );
 }

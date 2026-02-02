@@ -22,7 +22,11 @@ export async function resolveGuessMutation(username: string): Promise<ResolvedGu
     method: 'POST',
   });
   if (!response.ok) {
-    throw new Error(`Error resolving guess: ${response.statusText}`);
+    const errorData = await response.json();
+    if (errorData && typeof errorData === 'object' && 'reason' in errorData) {
+      throw new Error(errorData.reason);
+    }
+    throw new Error(`Error resolving guess: response.statusText}`);
   }
   const data = await response.json();
   if (!isResolvedGuess(data)) {
