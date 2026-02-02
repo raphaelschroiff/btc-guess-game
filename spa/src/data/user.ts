@@ -42,3 +42,17 @@ export async function userQuery(username: string): Promise<User | null> {
     guessMadeAt: result.guessMadeAt ? new Date(result.guessMadeAt) : null,
   }
 }
+
+export async function makeGuessMutation(username: string, guess: "UP" | "DOWN"): Promise<void> {
+  const response = await fetch(`${baseUrl}user/${username.toLowerCase()}/guess`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ guess }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+}
