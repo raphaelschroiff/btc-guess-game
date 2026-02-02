@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { baseUrl } from "../constants";
 import { priceQuery } from "../data/price";
 
 
