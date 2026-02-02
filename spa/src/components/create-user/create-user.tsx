@@ -1,26 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "preact/hooks";
-import { baseUrl } from "../../constants";
 import styles from './create-user.module.css';
+import { createUserMutation } from "../../data/user";
 
 export function CreateUser({ onUserCreated }: { onUserCreated?: (username: string) => void }) {
   const [newUsername, setNewUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending }  = useMutation({
-    mutationFn: async (username: string) => {
-      const response = await fetch(`${baseUrl}user/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userName: username.toLowerCase() }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create user');
-      }
-    },
+    mutationFn: createUserMutation,
     onSuccess: (_, username) => {
       if (onUserCreated) {
         onUserCreated(username);

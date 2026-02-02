@@ -56,3 +56,18 @@ export async function makeGuessMutation(username: string, guess: "UP" | "DOWN"):
     throw new Error('Network response was not ok');
   }
 }
+
+export async function createUserMutation(username: string): Promise<void> {
+  const response = await fetch(`${baseUrl}user/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userName: username.toLowerCase() }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to create user');
+  }
+}
