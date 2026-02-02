@@ -5,8 +5,13 @@ import tseslint from 'typescript-eslint';
 import preact from 'eslint-config-preact';
 
 export default defineConfig(
-  eslint.configs.recommended,
-  tseslint.configs.recommended,
-  preact
+  {
+    extends: [
+      preact,
+      eslint.configs.recommended,
+      tseslint.configs.recommended,
+    ],
+    files: ['**/*.ts', '**/*.tsx' ],
+  }
 );
 

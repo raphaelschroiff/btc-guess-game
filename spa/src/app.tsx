@@ -21,6 +21,9 @@ export function App() {
 
       { user ? <UserScore score={user.score} /> : null }
 
+      { error ? <div class="error">An error occurred: {error.message}</div> : null }
+      { isLoading ? <div>Loading...</div> : null }
+
       <div class="card">
         {username ?
           <span>Welcome back, {username}!</span> :
