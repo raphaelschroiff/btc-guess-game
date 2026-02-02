@@ -25,19 +25,19 @@ export async function getUser(client: DynamoDBClient, tableName: string, userNam
 }
 
 function userFromItem(item: Record<string, AttributeValue>): User {
-  const userName = item.userName.S;
+  const userName = item.userName?.S;
   if (!userName) {
     throw new Error('Invalid userName in DynamoDB item');
   }
-  const currentGuess = item.currentGuess.S;
-  const score = item.score.N ? parseInt(item.score.N) : 0;
-  const guessMadeAt = item.guessMadeAt.S ? new Date(item.guessMadeAt.S) : null;
+  const currentGuess = item.currentGuess?.S;
+  const score = item.score?.N ? parseInt(item.score.N) : 0;
+  const guessMadeAt = item.guessMadeAt?.S ? new Date(item.guessMadeAt.S) : null;
   return {
     userName,
     currentGuess: currentGuess === 'UP' || currentGuess === 'DOWN' ? currentGuess : '',
     score,
     guessMadeAt,
-    currentPrice: item.currentPrice.N ? parseFloat(item.currentPrice.N) : undefined,
+    currentPrice: item.currentPrice?.N ? parseFloat(item.currentPrice.N) : undefined,
   }
 }
 
