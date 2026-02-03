@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { priceQuery } from "../data/price";
+import { priceQuery } from "../../data/price";
 
 
 export function BtcPrice() {

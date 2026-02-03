@@ -6,7 +6,7 @@ import { CreateUser } from './components/create-user/create-user';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { UserScore } from './components/user-score/user-score';
 import { userQuery } from './data/user';
-import { GuessForm } from './components/guess-form';
+import { GuessForm } from './components/guess-form/guess-form';
 import { CurrentGuess } from './components/current-guess/current-guess';
 
 export function App() {
@@ -30,19 +30,19 @@ export function App() {
 
       {error ? <div class="error">An error occurred: {error.message}</div> : null}
 
-      <div class="card">
-        {username ?
-          <>
-            <span>Welcome back, {username}!</span>
+      {username ?
+        <>
+          <h2>Welcome back, {username}!</h2>
 
-            {error ? <div class="error">An error occurred: {error.message}</div> : null}
-            {isLoading ? <div>Loading...</div> : null}
+          {error ? <div class="error">An error occurred: {error.message}</div> : null}
+          {isLoading ? <div>Loading...</div> : null}
 
-            {user ?
-              <>
-                <UserScore score={user.score} />
+          {user &&
+            <>
+              <UserScore score={user.score} />
+              <div class="card">
                 {hasMadeGuess || guessResolved ?
-                  <>
+                  <div class="flexColumn">
                     <CurrentGuess user={user} onGuessResolved={() => {
                       setGuessResolved(true);
                       queryClient.invalidateQueries({ queryKey });
@@ -53,7 +53,7 @@ export function App() {
                     }}>
                       Make New Guess
                     </button>}
-                  </>
+                  </div>
                   :
                   <>
                     <GuessForm user={user} onGuessMade={() => {
@@ -61,13 +61,12 @@ export function App() {
                     }} />
                   </>
                 }
-              </>
-              : null}
-          </>
-          :
-          <CreateUser onUserCreated={(newUsername) => setUsername(newUsername)} />
-        }
-      </div>
+              </div>
+            </>}
+        </>
+        :
+        <CreateUser onUserCreated={(newUsername) => setUsername(newUsername)} />
+      }
     </>
   )
 }

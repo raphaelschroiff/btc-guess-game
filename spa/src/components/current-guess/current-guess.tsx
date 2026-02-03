@@ -34,20 +34,20 @@ export function CurrentGuess({ user, onGuessResolved }: { user: User, onGuessRes
     <>
       {error ? <div class="error">An error occurred: {error.message}</div> : null}
       {resolvedGuess ?
-        <>
+        <div class="flexColumn">
           <div>Your guess was {resolvedGuess.guessCorrect ? 'correct' : 'incorrect'}!</div>
           <div>Your guess: {resolvedGuess.guess}</div>
           <div>Price at guess: {resolvedGuess.priceAtGuess}</div>
           <div>Price after: {resolvedGuess.priceAfter}</div>
-        </>
+        </div>
         :
-        <>
+        <div class="flexColumn">
           <div>Your current guess is {user.currentGuess}</div>
           <div>Guess can be resolved in {secondsToResolve !== null ? `${secondsToResolve} seconds` : 'N/A'}</div>
           <button onClick={() => mutate()} disabled={isPending || (secondsToResolve !== null && secondsToResolve > 0)}>
             Resolve Guess
           </button>
-        </>
+        </div>
       }
     </>
   );
