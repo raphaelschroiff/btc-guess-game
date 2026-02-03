@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'preact/hooks';
 
 import './app.css'
+import './animations.css'
 import { CreateUser } from './components/create-user/create-user';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { UserScore } from './components/user-score/user-score';

@@ -4,4 +4,6 @@
 
 .price {
   font-weight: bold;
+  display: inline-block;
+  animation: 0.3s ease-in-out;
 }

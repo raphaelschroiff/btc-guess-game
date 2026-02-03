@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatPrice, priceQuery } from "../../data/price";
 import styles from "./btc-price.module.css";
+import { useAnimateOnUpdate } from "../../hooks/useAnimateOnUpdate";
 
 
 export function BtcPrice() {
@@ -9,6 +10,9 @@ export function BtcPrice() {
     queryFn: priceQuery,
     refetchInterval: 60000, // Refetch every 60 seconds
   });
+
+  const animationStyle = useAnimateOnUpdate(data, 'wiggle', '0.3s', 'ease-in-out');
+
   if (isLoading) {
     return <div>Loading BTC price...</div>;
   }
@@ -19,7 +23,8 @@ export function BtcPrice() {
 
   return (
     <div class={styles.priceContainer}>
-      Current BTC Price: <span class={styles.price}>{formatPrice(data)}</span>
+      Current BTC Price:&nbsp;
+      <span class={styles.price} style={animationStyle}>{formatPrice(data)}</span>
     </div>
   );
 }
