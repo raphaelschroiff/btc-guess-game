@@ -1,7 +1,8 @@
 {
-    "name": "btc-guess-game",
-    "private": true,
-    "workspaces": [
-        "cdk"
-    ]
+  "name": "btc-guess-game",
+  "private": true,
+  "workspaces": [
+    "cdk",
+    "spa"
+  ]
 }
