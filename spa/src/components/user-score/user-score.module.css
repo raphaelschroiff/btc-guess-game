@@ -1,6 +1,6 @@
 .userScore {
   font-weight: bold;
-  font-size: 1.2em;
+  font-size: 1.3em;
   color: light-dark(#0e03a9, #8ab4f8);
   margin: var(--space-2) 0;
 }
