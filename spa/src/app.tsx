@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 
 import './app.css'
 import { CreateUser } from './components/create-user/create-user';
@@ -22,11 +22,11 @@ export function App() {
   });
 
   const hasMadeGuess = user && !!user.currentGuess;
+  const [guessResolved, setGuessResolved] = useState(false);
 
   return (
     <>
       <h1>BTC Guess</h1>
-
 
       {error ? <div class="error">An error occurred: {error.message}</div> : null}
 
@@ -41,8 +41,20 @@ export function App() {
             {user ?
               <>
                 <UserScore score={user.score} />
-                {hasMadeGuess ?
-                  <CurrentGuess user={user} /> :
+                {hasMadeGuess || guessResolved ?
+                  <>
+                    <CurrentGuess user={user} onGuessResolved={() => {
+                      setGuessResolved(true);
+                      queryClient.invalidateQueries({ queryKey });
+                    }} />
+                    {guessResolved && <button onClick={() => {
+                      setGuessResolved(false);
+                      queryClient.invalidateQueries({ queryKey });
+                    }}>
+                      Make New Guess
+                    </button>}
+                  </>
+                  :
                   <>
                     <GuessForm user={user} onGuessMade={() => {
                       queryClient.invalidateQueries({ queryKey });

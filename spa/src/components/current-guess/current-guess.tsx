@@ -3,7 +3,7 @@ import { User } from "../../data/user";
 import { useMutation } from "@tanstack/react-query";
 import { ResolvedGuess, resolveGuessMutation } from "../../data/guess";
 
-export function CurrentGuess({ user }: { user: User }) {
+export function CurrentGuess({ user, onGuessResolved }: { user: User, onGuessResolved: () => void }) {
 
   const [secondsToResolve, setSecondsToResolve] = useState<number | null>(null);
   const [resolvedGuess, setResolvedGuess] = useState<ResolvedGuess | null>(null);
@@ -27,6 +27,7 @@ export function CurrentGuess({ user }: { user: User }) {
     mutationFn: () => resolveGuessMutation(user.userName),
     onSuccess: (data) => {
       setResolvedGuess(data);
+      onGuessResolved();
     }
   });
   return (
