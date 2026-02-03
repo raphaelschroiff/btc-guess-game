@@ -19,3 +19,7 @@ export async function priceQuery(): Promise<number> {
   return result.price as number;
 }
 
+export function formatPrice(price: number): string {
+  return `$${price}`;
+}
+

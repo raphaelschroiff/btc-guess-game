@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { User } from "../../data/user";
 import { useMutation } from "@tanstack/react-query";
 import { ResolvedGuess, resolveGuessMutation } from "../../data/guess";
+import { formatPrice } from "../../data/price";
 
 export function CurrentGuess({ user, onGuessResolved }: { user: User, onGuessResolved: () => void }) {
 
@@ -35,14 +36,13 @@ export function CurrentGuess({ user, onGuessResolved }: { user: User, onGuessRes
       {error ? <div class="error">An error occurred: {error.message}</div> : null}
       {resolvedGuess ?
         <div class="flexColumn">
-          <div>Your guess was {resolvedGuess.guessCorrect ? 'correct' : 'incorrect'}!</div>
-          <div>Your guess: {resolvedGuess.guess}</div>
-          <div>Price at guess: {resolvedGuess.priceAtGuess}</div>
-          <div>Price after: {resolvedGuess.priceAfter}</div>
+          <div>Your guess was {resolvedGuess.guessCorrect ? 'correct 🎉' : 'incorrect 😕'}</div>
+          <div>You guessed: {formatGuess(resolvedGuess.guess)}</div>
+          <div>Price went from {formatPrice(resolvedGuess.priceAtGuess)} to {formatPrice(resolvedGuess.priceAfter)} {priceTrend(resolvedGuess.priceAtGuess, resolvedGuess.priceAfter)}</div>
         </div>
         :
         <div class="flexColumn">
-          <div>Your current guess is {user.currentGuess}</div>
+          <div>Your current guess is {formatGuess(user.currentGuess)}</div>
           <div>Guess can be resolved in {secondsToResolve !== null ? `${secondsToResolve} seconds` : 'N/A'}</div>
           <button onClick={() => mutate()} disabled={isPending || (secondsToResolve !== null && secondsToResolve > 0)}>
             Resolve Guess
@@ -51,4 +51,21 @@ export function CurrentGuess({ user, onGuessResolved }: { user: User, onGuessRes
       }
     </>
   );
+}
+
+function formatGuess(guess: 'UP' | 'DOWN' | ''): string {
+  if (guess === '') {
+    return 'No guess made';
+  }
+  return guess === 'UP' ? 'Up ↗️' : 'Down ↘️';
+}
+
+function priceTrend(priceAtGuess: number, priceAfter: number): string {
+  if (priceAfter > priceAtGuess) {
+    return '↗️';
+  } else if (priceAfter < priceAtGuess) {
+    return '↘️';
+  }
+
+  return '➡️';
 }
