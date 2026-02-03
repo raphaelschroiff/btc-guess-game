@@ -1,0 +1,5 @@
+.loadingIndicator {
+  display: inline-block;
+  animation: 'rotateY' 1s ease-in-out infinite;
+  font-size: 2em;
+}

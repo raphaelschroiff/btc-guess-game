@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { formatPrice, priceQuery } from "../../data/price";
 import styles from "./btc-price.module.css";
 import { useAnimateOnUpdate } from "../../hooks/useAnimateOnUpdate";
+import { LoadingIndicator } from "../loading-indicator/loading-indicator";
 
 
 export function BtcPrice() {
@@ -13,9 +14,7 @@ export function BtcPrice() {
 
   const animationStyle = useAnimateOnUpdate(data, 'wiggle', '0.3s', 'ease-in-out');
 
-  if (isLoading) {
-    return <div>Loading BTC price...</div>;
-  }
+  <LoadingIndicator isLoading={isLoading} />;
 
   if (error) {
     return <div>Error loading BTC price.</div>;

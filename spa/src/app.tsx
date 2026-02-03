@@ -9,6 +9,7 @@ import { UserScore } from './components/user-score/user-score';
 import { userQuery } from './data/user';
 import { GuessForm } from './components/guess-form/guess-form';
 import { CurrentGuess } from './components/current-guess/current-guess';
+import { LoadingIndicator } from './components/loading-indicator/loading-indicator';
 
 export function App() {
 
@@ -35,8 +36,9 @@ export function App() {
         <>
           <h2>Welcome back, {username}!</h2>
 
+
           {error ? <div class="error">An error occurred: {error.message}</div> : null}
-          {isLoading ? <div>Loading...</div> : null}
+          <LoadingIndicator isLoading={isLoading} />
 
           {user &&
             <>
