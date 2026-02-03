@@ -5,12 +5,12 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/user/raphael
+  url: {{baseUrl}}/api/user/{{userName}}
   body: none
   auth: none
 }
 
 assert {
   res.status: eq 200
-  res.body.userName: eq raphael
+  res.body.userName: eq {{userName}}
 }

@@ -16,6 +16,10 @@ headers {
 
 body:json {
   {
-    "userName": "raphael"
+    "userName": "{{$randomUserName}}"
   }
+}
+
+assert {
+  res.status: eq 201
 }
