@@ -22,7 +22,7 @@ export function BtcPrice() {
 
   return (
     <div class={styles.priceContainer}>
-      Current BTC Price:&nbsp;
+      <span>Current BTC Price:&nbsp;</span>
       <span class={styles.price} style={animationStyle}>{formatPrice(data)}</span>
     </div>
   );
