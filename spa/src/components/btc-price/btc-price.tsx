@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { priceQuery } from "../../data/price";
+import { formatPrice, priceQuery } from "../../data/price";
+import styles from "./btc-price.module.css";
 
 
 export function BtcPrice() {
@@ -17,8 +18,8 @@ export function BtcPrice() {
   }
 
   return (
-    <div>
-      Current BTC Price: {data}
+    <div class={styles.priceContainer}>
+      Current BTC Price: <span class={styles.price}>{formatPrice(data)}</span>
     </div>
   );
 }
