@@ -9,7 +9,7 @@ const TABLE_NAME = process.env.BTC_GUESS_TABLE_NAME!;
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   console.log('GetUserName function invoked with event:', event);
 
-  const userName = event.pathParameters?.userName;
+  const userName = decodeURIComponent(event.pathParameters?.userName || '');
   if (!userName) {
     return badRequest({ message: 'UserName parameter is required' });
   }

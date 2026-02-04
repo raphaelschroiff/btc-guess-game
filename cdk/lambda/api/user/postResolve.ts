@@ -16,7 +16,7 @@ type ResolveResponse = {
 };
 
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const userName = event.pathParameters?.userName;
+  const userName = decodeURIComponent(event.pathParameters?.userName || '');
   if (!userName) {
     return badRequest({ reason: 'UserName parameter is required' });
   }
