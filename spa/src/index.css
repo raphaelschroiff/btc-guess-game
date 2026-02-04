@@ -73,6 +73,15 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+input[type="text"] {
+  font-size: 1em;
+  padding: var(--space-1);
+  border: 1px solid light-dark(#ccc, #444);
+  border-radius: var(--radius-2);
+  background-color: light-dark(#fff, #1a1a1a);
+  color: inherit;
+}
+
 .card {
   background-color: light-dark(#ffffff77, #1a1a1a);
   border-radius: var(--radius-2);
