@@ -1,4 +1,4 @@
-import { baseUrl } from "../constants";
+import { getUserUrl } from './user';
 
 export type ResolvedGuess = {
   guessCorrect: boolean;
@@ -18,7 +18,7 @@ function isResolvedGuess(data: unknown): data is ResolvedGuess {
 }
 
 export async function resolveGuessMutation(username: string): Promise<ResolvedGuess> {
-  const response = await fetch(`${baseUrl}user/${username.toLowerCase()}/resolve`, {
+  const response = await fetch(`${getUserUrl(username)}/resolve`, {
     method: 'POST',
   });
   if (!response.ok) {
@@ -34,3 +34,4 @@ export async function resolveGuessMutation(username: string): Promise<ResolvedGu
   }
   return data;
 }
+

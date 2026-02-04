@@ -21,7 +21,7 @@ export async function userQuery(username: string): Promise<User | null> {
   if (!username) {
     return null;
   }
-  const response = await fetch(`${baseUrl}user/${username.toLowerCase()}`, {
+  const response = await fetch(`${getUserUrl(username)}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export async function userQuery(username: string): Promise<User | null> {
 }
 
 export async function makeGuessMutation(username: string, guess: "UP" | "DOWN"): Promise<void> {
-  const response = await fetch(`${baseUrl}user/${username.toLowerCase()}/guess`, {
+  const response = await fetch(`${getUserUrl(username)}/guess`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -70,4 +70,9 @@ export async function createUserMutation(username: string): Promise<void> {
     const errorData = await response.json();
     throw new Error(errorData.message || 'Failed to create user');
   }
+}
+
+export function getUserUrl(username: string): string {
+  const nomalizedUsername = encodeURIComponent(username.toLowerCase());
+  return `${baseUrl}user/${nomalizedUsername}`;
 }
