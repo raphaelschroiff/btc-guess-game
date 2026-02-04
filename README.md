@@ -56,7 +56,7 @@ This monorepo uses npm workspaces:
   It might be necessary to invalidate the CloudFront distribution to see the recent changes.
   ```
   aws cloudfront create-invalidation --distribution-id <DISTRIBUTION ID> --paths '/*' --profile <aws profile>
-
+  ```
 
 ## API Tests
 
