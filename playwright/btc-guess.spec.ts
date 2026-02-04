@@ -1,16 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-const randomSuffix = Math.floor(Math.random() * 10000);
-const randomUserName = `TestUser-${randomSuffix}`;
-
-const storageStatePath = `playwright/storage-state.json`;
-
-test('create user', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
-  // Clear local storage to ensure a fresh start
-  await page.evaluate(() => {
-    localStorage.clear();
-  });
+test.beforeEach(async ({ page }) => {
+  // start each test with a new user to enable parallel test execution
+  const randomSuffix = Math.floor(Math.random() * 10000);
+  const randomUserName = `TestUser-${randomSuffix}`;
+  await page.goto('/');
   await page.reload();
   await page.getByRole('textbox', { name: 'Enter your username' }).click();
   await page.getByRole('textbox', { name: 'Enter your username' }).fill(randomUserName);
@@ -18,13 +12,11 @@ test('create user', async ({ page }) => {
   await expect(page.getByRole('heading', { name: `Welcome back, ${randomUserName}!` })).toBeVisible();
   await expect(page.getByText('Your Score: 0')).toBeVisible();
   await expect(page.getByText('Current BTC Price: $')).toBeVisible();
-
-  await page.context().storageState({ path: storageStatePath }); // Save storage state for future tests
 });
 
 test('make and resolve guess - up', async ({ page }) => {
   test.setTimeout(90000);
-  await page.goto('http://localhost:5173/');
+  await page.goto('/');
   const priceContainer = page.locator('div:has-text("Current BTC Price:")').last();
   await expect(priceContainer).toContainText('Current BTC Price:');
   await expect(priceContainer).toContainText(/\$\d+/)
@@ -58,7 +50,7 @@ test('make and resolve guess - up', async ({ page }) => {
 
 test('make and resolve guess - down', async ({ page }) => {
   test.setTimeout(90000);
-  await page.goto('http://localhost:5173/');
+  await page.goto('/');
   const priceContainer = page.locator('div:has-text("Current BTC Price:")').last();
   await expect(priceContainer).toContainText('Current BTC Price:');
   await expect(priceContainer).toContainText(/\$\d+/)
@@ -91,7 +83,7 @@ test('make and resolve guess - down', async ({ page }) => {
 });
 
 test('score persists after reload', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+  await page.goto('/');
   await expect(page.getByText('Your Score:')).toBeVisible();
   const scoreText = await page.getByText(/Your Score:/).textContent();
   await page.reload();
